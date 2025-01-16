@@ -49,6 +49,8 @@ NexText TxtData = NexText(0, 10, "TxtData");
 NexText TxtKirim = NexText(0, 12, "TxtKirim");
 NexText TxtJam = NexText(0, 3, "TxtJam");
 NexNumber nRit = NexNumber(0, 27, "nRit");
+NexText TxtClient = NexText(0, 15, "TxtClient");
+NexText TxtTanggal = NexText(0, 14, "TxtTanggal");
 
 NexTouch *nex_listen_list[] = {
   &BtnStart,
@@ -318,7 +320,11 @@ void processData(String data) {
 // Fungsi tambahan untuk menampilkan data terakhir dari buffer (jika diinginkan)
 void printLast10Data() {
     char timeBuffer[20];
+    char clientName[50];
+    char dateBuffer[20];
     memset(timeBuffer, 0, sizeof(timeBuffer));
+    memset(clientName, 0, sizeof(clientName));
+    memset(dateBuffer, 0, sizeof(dateBuffer));
 
     // Ambil nilai nRit sekali
     uint32_t ritValue = 0;
@@ -329,17 +335,46 @@ void printLast10Data() {
         ritValue = 0; // Nilai default jika gagal
     }
 
+    // Ambil nilai TxtClient sekali
+    if (TxtClient.getText(clientName, sizeof(clientName))) {
+        cleanString(clientName); // Bersihkan string
+        Serial.printf("Client Name: %s\n", clientName);
+    } else {
+        strcpy(clientName, "Unknown Client"); // Nilai default jika gagal
+        Serial.println("Gagal mendapatkan nama client.");
+    }
+
+    // Ambil nilai TxtTanggal sekali
+    if (TxtTanggal.getText(dateBuffer, sizeof(dateBuffer))) {
+        cleanString(dateBuffer); // Bersihkan string
+        Serial.printf("Tanggal: %s\n", dateBuffer);
+    } else {
+        strcpy(dateBuffer, "00-00-0000"); // Nilai default jika gagal
+        Serial.println("Gagal mendapatkan tanggal.");
+    }
+
+    // Mulai mencetak ke printer
     printer.justify('C');                // Teks rata tengah
     printer.setSize('S');                // Ukuran teks medium
-    printer.println("HD78140KM");        // Cetak unit name
-    printer.println("--------------------------");  // Garis pemisah
+    // Cetak nama client dan tanggal
+    printer.printf("Client: %s\n", clientName);
+    printer.printf("Tanggal: %s\n", dateBuffer);
+        // Cetak garis pemisah
+    for (int i = 0; i < 30; i++) {
+        printer.print('*'); // Cetak '-' satu per satu
+    }
+    printer.println();
 
     printer.justify('L');                // Teks rata kiri
     printer.setSize('S');                // Ukuran teks kecil
 
     // Header tabel
     printer.println("TIME     RIT     PAYLOAD");
-    printer.println("--------------------------");
+        // Cetak garis pemisah
+    for (int i = 0; i < 30; i++) {
+        printer.print('*'); // Cetak '-' satu per satu
+    }
+    printer.println();
 
     // Cetak data dari buffer
     for (int i = 0; i < BUFFER_SIZE; i++) {
@@ -358,7 +393,11 @@ void printLast10Data() {
         }
     }
 
-    printer.println("--------------------------");
+        // Cetak garis pemisah
+    for (int i = 0; i < 30; i++) {
+        printer.print('*'); // Cetak '-' satu per satu
+    }
+    printer.println();
     printer.setSize('L');
     printer.println(""); // Tambahkan baris kosong
     printer.sleep(); // Matikan printer setelah mencetak
@@ -374,5 +413,6 @@ void cleanString(char *str) {
         }
     }
 }
+
 
 
