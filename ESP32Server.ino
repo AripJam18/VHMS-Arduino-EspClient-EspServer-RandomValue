@@ -48,27 +48,27 @@ void setup() {
   Serial.println(WiFi.softAPIP());
   server.begin();
 
-  // // Nextion setup
-  // mySerial.begin(9600, SERIAL_8N1, RXD2, TXD2);
-  // nexSerial = mySerial;
-  // nexInit();
-  // TxtStatus.setText("System Started");
+  // Nextion setup
+  mySerial.begin(9600, SERIAL_8N1, RXD2, TXD2);
+  nexSerial = mySerial;
+  nexInit();
+  TxtStatus.setText("System Started");
 
-  // // Inisialisasi SPI dan SD card
-  // SPI.begin(18, 19, 23, SD_CS); // SCK, MISO, MOSI, CS
-  // if (SD.begin(SD_CS)) {
-  //   Serial.println("SD card successfully mounted.");
-  // } else {
-  //   Serial.println("Failed to mount SD card.");
-  //   TxtStatus.setText("SD Mount Failed");
-  // }
+  // Inisialisasi SPI dan SD card
+  SPI.begin(18, 19, 23, SD_CS); // SCK, MISO, MOSI, CS
+  if (SD.begin(SD_CS)) {
+    Serial.println("SD card successfully mounted.");
+  } else {
+    Serial.println("Failed to mount SD card.");
+    TxtStatus.setText("SD Mount Failed");
+  }
 }
 
 void loop() { 
   WiFiClient client = server.available();
 
   if (client) {
-    //TxtStatus.setText("C-Connected");
+    TxtStatus.setText("C-Connected");
     Serial.println("C-Connected");
     lastDataTime = millis();
 
@@ -82,7 +82,7 @@ void loop() {
         // Periksa apakah data dimulai dengan '#' dan diakhiri dengan '*'
         if (data.startsWith("#") && data.endsWith("*")) {
           data = data.substring(1, data.length() - 1); // Menghapus '#' dan '*'
-          //displayDataOnNextion(data);  // Proses dan simpan data ke SD Card
+          displayDataOnNextion(data);  // Proses dan simpan data ke SD Card
         } else {
           Serial.println("Invalid data format received.");
         }
@@ -94,13 +94,13 @@ void loop() {
       if (millis() - lastDataTime > timeoutInterval) {
         Serial.println("Client disconnected due to timeout.");
         client.stop();
-        //TxtStatus.setText("C-Timeout");
+        TxtStatus.setText("C-Timeout");
         break;
       }
     }
 
     if (!client.connected()) {
-      //TxtStatus.setText("Waiting for data");
+      TxtStatus.setText("Waiting for data");
       Serial.println("Waiting for data");
     }
   }
@@ -160,7 +160,7 @@ void saveDataToSD(String parts[]) {
 
   if (!file) {
     Serial.println("Failed to open file for writing.");
-    //TxtStatus.setText("SD Write Failed");
+    TxtStatus.setText("SD Write Failed");
     return;
   }
 
@@ -174,7 +174,7 @@ void saveDataToSD(String parts[]) {
   file.print(dataLine);
 
   Serial.println("Data saved to SD card: " + dataLine);
-  //TxtStatus.setText("Data Saved");
+  TxtStatus.setText("Data Saved");
   file.close();
 }
 
